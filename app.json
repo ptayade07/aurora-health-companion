@@ -1,25 +1,51 @@
 {
   "expo": {
-    "name": "aurora",
+    "name": "Aurora",
     "slug": "aurora",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-    "userInterfaceStyle": "light",
+    "scheme": "aurora",
+    "userInterfaceStyle": "dark",
+    "newArchEnabled": false,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.aurora.health",
+      "infoPlist": {
+        "NSMicrophoneUsageDescription": "Aurora uses the microphone for voice conversations."
+      }
     },
     "android": {
+      "permissions": [
+        "RECORD_AUDIO",
+        "android.permission.RECORD_AUDIO",
+        "android.permission.MODIFY_AUDIO_SETTINGS",
+        "android.permission.FOREGROUND_SERVICE",
+        "android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK"
+      ],
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
+        "backgroundColor": "#0F172A",
         "foregroundImage": "./assets/android-icon-foreground.png",
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
+      "package": "com.aurora.health",
       "predictiveBackGestureEnabled": false
     },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "favicon": "./assets/favicon.png",
+      "bundler": "metro"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-audio",
+      "expo-font"
+    ],
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "37f1fc7f-6885-479e-8b86-af1cc19512a7"
+      }
     }
   }
 }
