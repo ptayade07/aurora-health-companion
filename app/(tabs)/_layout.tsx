@@ -4,9 +4,9 @@ import { Ionicons } from "@expo/vector-icons";
 import { useApp } from "../../context/AppContext";
 import FloatingPet from "../../components/FloatingPet";
 
-const LIME   = "#C8FF00";
-const BG     = "#070707";
-const MUTED  = "rgba(255,255,255,0.30)";
+const LIME  = "#C8FF00";
+const BG    = "#070707";
+const GREY  = "#5A5A5A";
 
 type IconName = React.ComponentProps<typeof Ionicons>["name"];
 
@@ -20,30 +20,14 @@ function TabIcon({
   focused: boolean;
 }) {
   return (
-    <View style={ic.wrap}>
-      <Ionicons
-        name={focused ? icon : iconOutline}
-        size={22}
-        color={focused ? LIME : MUTED}
-      />
-      {/* Lime pill indicator below icon */}
-      <View style={[ic.pill, focused && ic.pillActive]} />
-    </View>
+    <Ionicons
+      name={focused ? icon : iconOutline}
+      size={23}
+      color={focused ? LIME : GREY}
+    />
   );
 }
 
-const ic = StyleSheet.create({
-  wrap: { alignItems: "center", gap: 4 },
-  pill: {
-    width: 4, height: 4,
-    borderRadius: 2,
-    backgroundColor: "transparent",
-  },
-  pillActive: {
-    width: 18,
-    backgroundColor: LIME,
-  },
-});
 
 export default function TabLayout() {
   const { loggedIn } = useApp();
@@ -57,33 +41,16 @@ export default function TabLayout() {
           tabBarShowLabel: false,
           tabBarStyle: s.tabBar,
           tabBarActiveTintColor: LIME,
-          tabBarInactiveTintColor: MUTED,
+          tabBarInactiveTintColor: GREY,
         }}
       >
+        {/* ── 5 visible tabs ───────────────────────────────────────────────── */}
         <Tabs.Screen
           name="index"
           options={{
-            title: "Home",
+            title: "Today",
             tabBarIcon: ({ focused }) => (
               <TabIcon icon="home" iconOutline="home-outline" focused={focused} />
-            ),
-          }}
-        />
-        <Tabs.Screen
-          name="water"
-          options={{
-            title: "Water",
-            tabBarIcon: ({ focused }) => (
-              <TabIcon icon="water" iconOutline="water-outline" focused={focused} />
-            ),
-          }}
-        />
-        <Tabs.Screen
-          name="quests"
-          options={{
-            title: "Habits",
-            tabBarIcon: ({ focused }) => (
-              <TabIcon icon="checkmark-circle" iconOutline="checkmark-circle-outline" focused={focused} />
             ),
           }}
         />
@@ -97,6 +64,24 @@ export default function TabLayout() {
           }}
         />
         <Tabs.Screen
+          name="progress"
+          options={{
+            title: "Progress",
+            tabBarIcon: ({ focused }) => (
+              <TabIcon icon="trending-up" iconOutline="trending-up-outline" focused={focused} />
+            ),
+          }}
+        />
+        <Tabs.Screen
+          name="companion"
+          options={{
+            title: "Companion",
+            tabBarIcon: ({ focused }) => (
+              <TabIcon icon="heart" iconOutline="heart-outline" focused={focused} />
+            ),
+          }}
+        />
+        <Tabs.Screen
           name="profile"
           options={{
             title: "Profile",
@@ -105,7 +90,10 @@ export default function TabLayout() {
             ),
           }}
         />
-        {/* Hidden routes */}
+
+        {/* ── Hidden — now modules inside Today ────────────────────────────── */}
+        <Tabs.Screen name="water"     options={{ href: null }} />
+        <Tabs.Screen name="quests"    options={{ href: null }} />
         <Tabs.Screen name="sleep"     options={{ href: null }} />
         <Tabs.Screen name="nutrition" options={{ href: null }} />
       </Tabs>
@@ -121,8 +109,8 @@ const s = StyleSheet.create({
     backgroundColor: BG,
     borderTopWidth: 1,
     borderTopColor: "rgba(255,255,255,0.06)",
-    height: 68,
-    paddingTop: 10,
-    paddingBottom: 12,
+    height: 72,
+    paddingTop: 8,
+    paddingBottom: 10,
   },
 });

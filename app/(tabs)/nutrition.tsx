@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import {
   View, Text, StyleSheet, TouchableOpacity,
   ScrollView, TextInput, Pressable,
@@ -10,7 +10,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useApp } from "../../context/AppContext";
 import type { NutritionEntry } from "../../lib/types";
 
-// ── Palette — matches home page ───────────────────────────────────────────────
+// ── Palette ────────────────────────────────────────────────────────────────────
 const LIME        = "#C8FF00";
 const LIME_BORDER = "rgba(200,255,0,0.18)";
 const BG          = "#070707";
@@ -21,6 +21,7 @@ const SOFT        = "rgba(255,255,255,0.65)";
 const BORDER      = "rgba(255,255,255,0.07)";
 const AMBER       = "#FBBF24";
 const BLUE        = "#60C8FF";
+const PURPLE      = "#A78BFA";
 
 // ── Meal type config ──────────────────────────────────────────────────────────
 const MEAL_TYPES: {
@@ -30,13 +31,17 @@ const MEAL_TYPES: {
   time: string;
   color: string;
 }[] = [
-  { type: "breakfast", abbr: "AM", label: "Breakfast", time: "Morning",  color: AMBER },
-  { type: "lunch",     abbr: "PM", label: "Lunch",     time: "Midday",   color: BLUE  },
-  { type: "dinner",    abbr: "DN", label: "Dinner",    time: "Evening",  color: LIME  },
-  { type: "snack",     abbr: "SN", label: "Snack",     time: "Anytime",  color: "#A78BFA" },
+  { type: "breakfast", abbr: "AM", label: "Breakfast", time: "Morning",  color: AMBER  },
+  { type: "lunch",     abbr: "PM", label: "Lunch",     time: "Midday",   color: BLUE   },
+  { type: "dinner",    abbr: "DN", label: "Dinner",    time: "Evening",  color: LIME   },
+  { type: "snack",     abbr: "SN", label: "Snack",     time: "Anytime",  color: PURPLE },
 ];
 
-// ── Section divider ───────────────────────────────────────────────────────────
+const MEAL_COLOR: Record<NutritionEntry["mealType"], string> = {
+  breakfast: AMBER, lunch: BLUE, dinner: LIME, snack: PURPLE,
+};
+
+// ── Divider ───────────────────────────────────────────────────────────────────
 function Divider({ label }: { label: string }) {
   return (
     <View style={dv.row}>
@@ -52,15 +57,148 @@ const dv = StyleSheet.create({
   text: { color: MUTED, fontSize: 10, fontWeight: "700", letterSpacing: 1.6 },
 });
 
+// ── Monthly Calendar ──────────────────────────────────────────────────────────
+function MonthCalendar({ nutritionLogs }: { nutritionLogs: NutritionEntry[] }) {
+  const [viewDate, setViewDate] = useState(() => new Date());
+
+  const year  = viewDate.getFullYear();
+  const month = viewDate.getMonth();
+
+  const datesWithLogs = useMemo(() => {
+    const set = new Set<string>();
+    nutritionLogs.forEach((n) => set.add(n.date));
+    return set;
+  }, [nutritionLogs]);
+
+  const firstDay  = new Date(year, month, 1).getDay(); // 0=Sun
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const todayStr  = new Date().toISOString().split("T")[0];
+
+  const monthLabel = new Date(year, month).toLocaleDateString("en-US", {
+    month: "long", year: "numeric",
+  });
+
+  const prevMonth = () => setViewDate(new Date(year, month - 1, 1));
+  const nextMonth = () => setViewDate(new Date(year, month + 1, 1));
+
+  const cells: (number | null)[] = [
+    ...Array(firstDay).fill(null),
+    ...Array.from({ length: daysInMonth }, (_, i) => i + 1),
+  ];
+
+  const DOW = ["S", "M", "T", "W", "T", "F", "S"];
+
+  return (
+    <View style={cal.card}>
+      {/* Nav */}
+      <View style={cal.nav}>
+        <TouchableOpacity onPress={prevMonth} hitSlop={12}>
+          <Ionicons name="chevron-back" size={18} color={SOFT} />
+        </TouchableOpacity>
+        <Text style={cal.monthLabel}>{monthLabel}</Text>
+        <TouchableOpacity onPress={nextMonth} hitSlop={12}>
+          <Ionicons name="chevron-forward" size={18} color={SOFT} />
+        </TouchableOpacity>
+      </View>
+
+      {/* Day headers */}
+      <View style={cal.dowRow}>
+        {DOW.map((d, i) => (
+          <Text key={i} style={cal.dowLabel}>{d}</Text>
+        ))}
+      </View>
+
+      {/* Day cells */}
+      <View style={cal.grid}>
+        {cells.map((day, i) => {
+          if (day === null) return <View key={`e-${i}`} style={cal.cell} />;
+
+          const mm  = String(month + 1).padStart(2, "0");
+          const dd  = String(day).padStart(2, "0");
+          const str = `${year}-${mm}-${dd}`;
+          const has = datesWithLogs.has(str);
+          const isToday = str === todayStr;
+
+          return (
+            <View
+              key={str}
+              style={[
+                cal.cell,
+                isToday && cal.cellToday,
+              ]}
+            >
+              <Text style={[
+                cal.dayNum,
+                isToday && cal.dayNumToday,
+                has && !isToday && cal.dayNumLogged,
+              ]}>
+                {day}
+              </Text>
+              {has && <View style={[cal.dot, isToday && cal.dotToday]} />}
+            </View>
+          );
+        })}
+      </View>
+
+      {/* Legend */}
+      <View style={cal.legend}>
+        <View style={cal.legendItem}>
+          <View style={[cal.dot, { position: "relative", top: 0 }]} />
+          <Text style={cal.legendTxt}>Meal logged</Text>
+        </View>
+        <View style={cal.legendItem}>
+          <View style={cal.legendToday} />
+          <Text style={cal.legendTxt}>Today</Text>
+        </View>
+      </View>
+    </View>
+  );
+}
+const cal = StyleSheet.create({
+  card: {
+    backgroundColor: CARD, borderRadius: 20, padding: 18,
+    borderWidth: 1, borderColor: BORDER, marginBottom: 4,
+  },
+  nav: {
+    flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 14,
+  },
+  monthLabel: { color: "#fff", fontSize: 14, fontWeight: "700" },
+
+  dowRow: { flexDirection: "row", marginBottom: 6 },
+  dowLabel: { flex: 1, textAlign: "center", color: MUTED, fontSize: 10, fontWeight: "700" },
+
+  grid: { flexDirection: "row", flexWrap: "wrap" },
+  cell: {
+    width: `${100 / 7}%`, aspectRatio: 1,
+    alignItems: "center", justifyContent: "center", gap: 2,
+  },
+  cellToday: {
+    backgroundColor: "rgba(200,255,0,0.12)",
+    borderRadius: 8,
+  },
+  dayNum:        { color: MUTED, fontSize: 12, fontWeight: "500" },
+  dayNumLogged:  { color: "#fff", fontWeight: "700" },
+  dayNumToday:   { color: LIME,  fontWeight: "800" },
+
+  dot:       { width: 4, height: 4, borderRadius: 99, backgroundColor: LIME },
+  dotToday:  { backgroundColor: LIME },
+
+  legend:     { flexDirection: "row", gap: 16, marginTop: 14, paddingTop: 12, borderTopWidth: 1, borderTopColor: BORDER },
+  legendItem: { flexDirection: "row", alignItems: "center", gap: 6 },
+  legendTxt:  { color: MUTED, fontSize: 11, fontWeight: "500" },
+  legendToday:{ width: 12, height: 12, borderRadius: 3, backgroundColor: "rgba(200,255,0,0.12)", borderWidth: 1, borderColor: "rgba(200,255,0,0.30)" },
+});
+
 // ── Screen ────────────────────────────────────────────────────────────────────
 export default function NutritionScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
-  const { todayNutrition, addNutrition, removeNutrition } = useApp();
+  const { todayNutrition, nutritionLogs, addNutrition, removeNutrition } = useApp();
   const [selected, setSelected] = useState<NutritionEntry["mealType"]>("breakfast");
   const [desc, setDesc]         = useState("");
 
   const handleAdd = () => {
+    if (!desc.trim()) return;
     addNutrition(selected, desc.trim());
     setDesc("");
   };
@@ -77,7 +215,6 @@ export default function NutritionScreen() {
       showsVerticalScrollIndicator={false}
       keyboardShouldPersistTaps="handled"
     >
-
       {/* ── Header ── */}
       <Text style={s.title}>Nutrition</Text>
       <Text style={s.subtitle}>
@@ -86,7 +223,7 @@ export default function NutritionScreen() {
           : `${todayNutrition.length} item${todayNutrition.length !== 1 ? "s" : ""} logged today`}
       </Text>
 
-      {/* ── Meal summary strip — 4 cards ── */}
+      {/* ── Meal summary strip ── */}
       <View style={s.summaryRow}>
         {MEAL_TYPES.map(({ type, abbr, label, color }) => {
           const count  = byType(type).length;
@@ -108,10 +245,14 @@ export default function NutritionScreen() {
         })}
       </View>
 
+      {/* ── Monthly Calendar ── */}
+      <Divider label="MONTHLY CALENDAR" />
+      <MonthCalendar nutritionLogs={nutritionLogs} />
+
       {/* ── Log a meal ── */}
       <Divider label="LOG A MEAL" />
 
-      {/* Type selector — 2×2 grid */}
+      {/* Type selector */}
       <View style={s.typeGrid}>
         {MEAL_TYPES.map(({ type, abbr, label, time, color }) => {
           const active = selected === type;
@@ -144,7 +285,7 @@ export default function NutritionScreen() {
         onSubmitEditing={handleAdd}
       />
 
-      {/* Add button */}
+      {/* Log button */}
       <TouchableOpacity activeOpacity={0.85} onPress={handleAdd}>
         <LinearGradient
           colors={[LIME, "#A0D000"]}
@@ -156,7 +297,7 @@ export default function NutritionScreen() {
         </LinearGradient>
       </TouchableOpacity>
 
-      {/* ── Today's entries by meal type ── */}
+      {/* ── Today's entries by meal ── */}
       {MEAL_TYPES.map(({ type, label, color }) => {
         const entries = byType(type);
         if (!entries.length) return null;
@@ -182,23 +323,23 @@ export default function NutritionScreen() {
         );
       })}
 
-      {/* ── Diet analysis CTA ── */}
+      {/* ── Analyze Diet CTA ── */}
       {todayNutrition.length > 0 && (
         <>
-          <Divider label="DIET ANALYSIS" />
+          <Divider label="AI ANALYSIS" />
           <TouchableOpacity
-            style={s.analysisNavBtn}
+            style={s.analysisBtn}
             onPress={() => router.push("/diet-analysis")}
             activeOpacity={0.82}
           >
-            <View style={s.analysisNavLeft}>
-              <Text style={s.analysisNavTitle}>View Full Analysis</Text>
-              <Text style={s.analysisNavSub}>
-                Macros, ratings, calendar history, and AI suggestions
+            <View style={s.analysisBtnLeft}>
+              <Text style={s.analysisBtnTitle}>Analyze Diet</Text>
+              <Text style={s.analysisBtnSub}>
+                AI breakdown of your meals — macros, ratings & suggestions
               </Text>
             </View>
-            <View style={s.analysisNavArrow}>
-              <Ionicons name="chevron-forward" size={20} color={LIME} />
+            <View style={s.analysisBtnArrow}>
+              <Ionicons name="sparkles" size={18} color={LIME} />
             </View>
           </TouchableOpacity>
         </>
@@ -208,7 +349,7 @@ export default function NutritionScreen() {
       {todayNutrition.length === 0 && (
         <View style={s.emptyCard}>
           <View style={s.emptyDots}>
-            {[AMBER, BLUE, LIME, "#A78BFA"].map((c) => (
+            {[AMBER, BLUE, LIME, PURPLE].map((c) => (
               <View key={c} style={[s.emptyDot, { backgroundColor: c }]} />
             ))}
           </View>
@@ -216,7 +357,6 @@ export default function NutritionScreen() {
           <Text style={s.emptyText}>Focus on awareness, not perfection.</Text>
         </View>
       )}
-
     </ScrollView>
   );
 }
@@ -230,7 +370,7 @@ const s = StyleSheet.create({
   subtitle: { color: MUTED, fontSize: 13, marginBottom: 24 },
 
   // Summary row
-  summaryRow:   { flexDirection: "row", gap: 8 },
+  summaryRow: { flexDirection: "row", gap: 8 },
   summaryCard: {
     flex: 1, backgroundColor: CARD, borderRadius: 14,
     borderWidth: 1, borderColor: BORDER, overflow: "hidden", minHeight: 82,
@@ -239,7 +379,7 @@ const s = StyleSheet.create({
   summaryBody:   { padding: 10, alignItems: "center", gap: 4 },
   summaryAbbr:   { color: MUTED, fontSize: 13, fontWeight: "800", letterSpacing: 0.5 },
   summaryLabel:  { color: MUTED, fontSize: 9,  fontWeight: "600", textAlign: "center" },
-  countBadge:  {
+  countBadge: {
     borderRadius: 999, minWidth: 20, height: 20,
     alignItems: "center", justifyContent: "center", paddingHorizontal: 6,
     borderWidth: 1, marginTop: 2,
@@ -286,25 +426,25 @@ const s = StyleSheet.create({
   entryDesc: { flex: 1, color: "#fff", fontSize: 13 },
   removeBtn: { color: MUTED, fontSize: 14, paddingLeft: 12 },
 
-  // Diet analysis nav button
-  analysisNavBtn: {
+  // Analyze Diet button
+  analysisBtn: {
     flexDirection: "row", alignItems: "center", justifyContent: "space-between",
-    backgroundColor: CARD, borderRadius: 10, padding: 18,
-    borderWidth: 1, borderColor: LIME_BORDER, gap: 12,
+    backgroundColor: CARD, borderRadius: 16, padding: 18,
+    borderWidth: 1, borderColor: "rgba(200,255,0,0.22)", gap: 12,
   },
-  analysisNavLeft:  { flex: 1, gap: 4 },
-  analysisNavTitle: { color: "#fff", fontSize: 15, fontWeight: "700" },
-  analysisNavSub:   { color: MUTED, fontSize: 12, lineHeight: 18 },
-  analysisNavArrow: {
-    width: 36, height: 36, borderRadius: 12,
+  analysisBtnLeft:  { flex: 1, gap: 4 },
+  analysisBtnTitle: { color: "#fff", fontSize: 16, fontWeight: "800" },
+  analysisBtnSub:   { color: MUTED, fontSize: 12, lineHeight: 18 },
+  analysisBtnArrow: {
+    width: 40, height: 40, borderRadius: 12,
     backgroundColor: "rgba(200,255,0,0.08)",
-    borderWidth: 1, borderColor: LIME_BORDER,
+    borderWidth: 1, borderColor: "rgba(200,255,0,0.22)",
     alignItems: "center", justifyContent: "center",
   },
 
   // Empty state
   emptyCard: {
-    backgroundColor: CARD, borderRadius: 12, padding: 32,
+    backgroundColor: CARD, borderRadius: 16, padding: 32,
     alignItems: "center", marginTop: 12, gap: 12,
     borderWidth: 1, borderColor: BORDER,
   },

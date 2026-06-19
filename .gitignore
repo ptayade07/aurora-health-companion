@@ -39,3 +39,13 @@ yarn-error.*
 # generated native folders
 /ios
 /android
+
+# dev screenshots
+shot*.png
+shot*.js
+*_s[0-9].png
+*_s[0-9][a-z].png
+splash_*.png
+splash_final.png
+nav_*.png
+.env

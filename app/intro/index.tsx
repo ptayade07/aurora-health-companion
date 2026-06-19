@@ -1,41 +1,52 @@
-import { useRef, useState } from "react";
+import { useState } from "react";
 import {
   View,
   Text,
   StyleSheet,
   Dimensions,
-  FlatList,
   TouchableOpacity,
-  NativeSyntheticEvent,
-  NativeScrollEvent,
+  Pressable,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
+import { MotiView } from "moti";
 import { useApp } from "../../context/AppContext";
 
 const { width } = Dimensions.get("window");
 
-const LIME = "#C8FF00";
+// ── Theme ──────────────────────────────────────────────────────────────────────
 const BG   = "#070707";
+const LIME = "#C8FF00";
 
-const SLIDES = [
+type Slide = {
+  num: string;
+  icon: string;
+  title: string;
+  subtitle: string;
+};
+
+const SLIDES: Slide[] = [
   {
     num: "01",
+    icon: "✦",
     title: "Understand\nyourself better\nevery day.",
     subtitle: "Meet Aurora — your slightly unhinged health best friend.",
   },
   {
     num: "02",
+    icon: "💧",
     title: "Track water,\nsleep, habits\n& more.",
     subtitle: "Not boring charts. Actual vibes.",
   },
   {
     num: "03",
+    icon: "🎙️",
     title: "Talk to Aurora.\nShe actually\nlistens.",
     subtitle: "Voice AI that logs your health and roasts you lovingly.",
   },
   {
     num: "04",
+    icon: "⚡",
     title: "Build routines\nthat actually\nstick.",
     subtitle: "Quests, streaks, and a companion that cares.",
   },
@@ -46,12 +57,9 @@ export default function IntroScreen() {
   const insets = useSafeAreaInsets();
   const { setIntroSeen } = useApp();
   const [index, setIndex] = useState(0);
-  const listRef = useRef<FlatList>(null);
 
-  const onScroll = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
-    const i = Math.round(e.nativeEvent.contentOffset.x / width);
-    setIndex(i);
-  };
+  const slide = SLIDES[index];
+  const isLast = index === SLIDES.length - 1;
 
   const finish = () => {
     setIntroSeen();
@@ -59,66 +67,102 @@ export default function IntroScreen() {
   };
 
   const next = () => {
-    if (index < SLIDES.length - 1) {
-      listRef.current?.scrollToIndex({ index: index + 1, animated: true });
-    } else {
-      finish();
-    }
+    if (isLast) finish();
+    else setIndex((i) => i + 1);
+  };
+
+  const prev = () => {
+    if (index > 0) setIndex((i) => i - 1);
   };
 
   return (
-    <View style={[styles.root, { paddingBottom: insets.bottom + 24 }]}>
-      {/* ── Slide counter top-right ── */}
-      <View style={[styles.topBar, { paddingTop: insets.top + 16 }]}>
+    <View style={[styles.root, { paddingTop: insets.top }]}>
+      {/* Top bar */}
+      <View style={styles.topBar}>
         <Text style={styles.brand}>Aurora</Text>
-        {index < SLIDES.length - 1 && (
-          <TouchableOpacity onPress={finish} hitSlop={12}>
-            <Text style={styles.skip}>Skip</Text>
-          </TouchableOpacity>
-        )}
+        <TouchableOpacity onPress={finish} hitSlop={12} activeOpacity={0.6}>
+          <Text style={styles.skip}>Skip</Text>
+        </TouchableOpacity>
       </View>
 
-      {/* ── Slides ── */}
-      <FlatList
-        ref={listRef}
-        data={SLIDES}
-        horizontal
-        pagingEnabled
-        showsHorizontalScrollIndicator={false}
-        onScroll={onScroll}
-        scrollEventThrottle={16}
-        keyExtractor={(_, i) => String(i)}
-        renderItem={({ item }) => (
-          <View style={[styles.slide, { width }]}>
-            {/* Slide number */}
-            <Text style={styles.slideNum}>{item.num}</Text>
-            {/* Large editorial title */}
-            <Text style={styles.title}>{item.title}</Text>
-            {/* Subtitle */}
-            <Text style={styles.subtitle}>{item.subtitle}</Text>
-          </View>
+      {/* Progress dots — lime active, muted inactive */}
+      <View style={styles.progressTrack}>
+        {SLIDES.map((_, i) => (
+          <MotiView
+            key={i}
+            animate={{
+              width: i === index ? 28 : 6,
+              backgroundColor: i <= index ? LIME : "rgba(255,255,255,0.16)",
+            }}
+            transition={{ type: "spring", damping: 18 }}
+            style={styles.progressDot}
+          />
+        ))}
+      </View>
+
+      {/* Slide content — key change forces remount + from/animate replay */}
+      <View style={styles.slideArea} pointerEvents="none">
+        <MotiView
+          key={`slide-${index}`}
+          from={{ opacity: 0, translateY: 22 }}
+          animate={{ opacity: 1, translateY: 0 }}
+          transition={{ type: "spring", damping: 18, stiffness: 140 }}
+          style={styles.slideContent}
+        >
+          {/* Slide number */}
+          <MotiView
+            from={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ type: "timing", duration: 280, delay: 60 }}
+          >
+            <Text style={styles.slideNum}>{slide.num}</Text>
+          </MotiView>
+
+          {/* Icon */}
+          <MotiView
+            from={{ opacity: 0, scale: 0.5 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ type: "spring", damping: 13, stiffness: 160, delay: 60 }}
+            style={styles.iconWrap}
+          >
+            <Text style={styles.icon}>{slide.icon}</Text>
+          </MotiView>
+
+          {/* Title */}
+          <MotiView
+            from={{ opacity: 0, translateY: 14 }}
+            animate={{ opacity: 1, translateY: 0 }}
+            transition={{ type: "spring", damping: 18, stiffness: 160, delay: 90 }}
+          >
+            <Text style={styles.title}>{slide.title}</Text>
+          </MotiView>
+
+          {/* Subtitle */}
+          <MotiView
+            from={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ type: "timing", duration: 380, delay: 200 }}
+          >
+            <Text style={styles.subtitle}>{slide.subtitle}</Text>
+          </MotiView>
+        </MotiView>
+      </View>
+
+      {/* Footer */}
+      <View style={[styles.footer, { paddingBottom: insets.bottom + 28 }]}>
+        {index > 0 && (
+          <Pressable onPress={prev} style={styles.backBtn} hitSlop={10}>
+            <Text style={styles.backText}>←</Text>
+          </Pressable>
         )}
-      />
 
-      {/* ── Footer ── */}
-      <View style={styles.footer}>
-        {/* Dot indicators */}
-        <View style={styles.dots}>
-          {SLIDES.map((_, i) => (
-            <View
-              key={i}
-              style={[
-                styles.dot,
-                i === index && styles.dotActive,
-              ]}
-            />
-          ))}
-        </View>
-
-        {/* CTA */}
-        <TouchableOpacity style={styles.button} onPress={next} activeOpacity={0.85}>
-          <Text style={styles.buttonText}>
-            {index < SLIDES.length - 1 ? "Next" : "Get Started"}
+        <TouchableOpacity
+          style={styles.cta}
+          onPress={next}
+          activeOpacity={0.85}
+        >
+          <Text style={styles.ctaText}>
+            {isLast ? "Get Started →" : "Continue"}
           </Text>
         </TouchableOpacity>
       </View>
@@ -131,13 +175,14 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: BG,
   },
-
   topBar: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
     paddingHorizontal: 28,
-    paddingBottom: 8,
+    paddingTop: 16,
+    paddingBottom: 12,
+    zIndex: 1,
   },
   brand: {
     color: "#fff",
@@ -146,66 +191,83 @@ const styles = StyleSheet.create({
     letterSpacing: -0.2,
   },
   skip: {
-    color: "rgba(255,255,255,0.38)",
+    color: "rgba(255,255,255,0.34)",
     fontSize: 14,
     fontWeight: "500",
   },
 
-  slide: {
-    flex: 1,
+  progressTrack: {
+    flexDirection: "row",
+    alignItems: "center",
     paddingHorizontal: 28,
+    gap: 6,
+    marginBottom: 4,
+    zIndex: 1,
+  },
+  progressDot: {
+    height: 4,
+    borderRadius: 2,
+  },
+
+  slideArea: {
+    flex: 1,
     justifyContent: "center",
-    paddingBottom: 40,
+    paddingHorizontal: 28,
+    zIndex: 1,
+  },
+  slideContent: {
+    gap: 0,
   },
   slideNum: {
     color: LIME,
-    fontSize: 13,
+    fontSize: 12,
     fontWeight: "700",
-    letterSpacing: 1,
+    letterSpacing: 2,
     marginBottom: 20,
+    textTransform: "uppercase",
+  },
+  iconWrap: {
+    marginBottom: 24,
+  },
+  icon: {
+    fontSize: 48,
   },
   title: {
-    color: "#fff",
+    color: "#FFFFFF",
     fontSize: 44,
     fontWeight: "800",
     letterSpacing: -2,
     lineHeight: 50,
-    marginBottom: 20,
+    marginBottom: 18,
   },
   subtitle: {
     color: "rgba(255,255,255,0.42)",
-    fontSize: 15,
-    lineHeight: 22,
+    fontSize: 16,
+    lineHeight: 24,
     fontWeight: "400",
   },
 
   footer: {
     paddingHorizontal: 28,
-    gap: 20,
+    gap: 14,
+    zIndex: 1,
   },
-  dots: {
-    flexDirection: "row",
-    gap: 6,
-    alignItems: "center",
+  backBtn: {
+    alignSelf: "flex-start",
+    paddingVertical: 4,
   },
-  dot: {
-    height: 6,
-    width: 6,
-    borderRadius: 3,
-    backgroundColor: "rgba(255,255,255,0.18)",
+  backText: {
+    color: "rgba(255,255,255,0.34)",
+    fontSize: 18,
+    fontWeight: "600",
   },
-  dotActive: {
-    width: 24,
-    backgroundColor: LIME,
-    borderRadius: 3,
-  },
-  button: {
+  cta: {
     backgroundColor: LIME,
     borderRadius: 999,
     paddingVertical: 18,
     alignItems: "center",
   },
-  buttonText: {
+  ctaText: {
     color: "#000",
     fontWeight: "800",
     fontSize: 16,
