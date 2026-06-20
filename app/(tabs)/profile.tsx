@@ -67,8 +67,12 @@ export default function ProfileScreen() {
   const avg7Sleep = sleepHistory.length > 0
     ? (sleepHistory.slice(-7).reduce((s, e) => s + e.hours, 0) / Math.min(sleepHistory.length, 7)).toFixed(1)
     : null;
+  const avgSleepAll = sleepHistory.length > 0
+    ? (sleepHistory.reduce((s, e) => s + e.hours, 0) / sleepHistory.length).toFixed(1)
+    : null;
   const longestStreak  = habits.reduce((m, h) => Math.max(m, h.streak), 0);
   const habitsComplete = habits.filter((h) => h.completedToday).length;
+  const totalWaterL    = (stats.waterMl / 1000).toFixed(1);
   const initial        = (profile.name || "A")[0].toUpperCase();
 
   const activeCompanion = COMPANIONS.find((c) => c.id === (profile.companionType ?? "fox")) ?? COMPANIONS[0];
@@ -236,6 +240,23 @@ export default function ProfileScreen() {
         </>
       )}
 
+      {/* ── Statistics ── */}
+      <Text style={[s.sectionLabel, { marginTop: 20, marginBottom: 10 }]}>STATISTICS</Text>
+      <View style={s.statGrid}>
+        {[
+          { label: "Longest Streak",  value: `${longestStreak}d`,             icon: "flame-outline" as const,       color: LIME  },
+          { label: "Best Aura Score", value: `${healthScore}`,                icon: "sparkles-outline" as const,    color: LIME  },
+          { label: "Avg Sleep",       value: avgSleepAll ? `${avgSleepAll}h` : "—", icon: "moon-outline" as const,  color: BLUE  },
+          { label: "Water Today",     value: `${totalWaterL}L`,               icon: "water-outline" as const,       color: BLUE  },
+        ].map((item) => (
+          <View key={item.label} style={s.statGridCell}>
+            <Ionicons name={item.icon} size={18} color={item.color} />
+            <Text style={[s.statGridVal, { color: item.color }]}>{item.value}</Text>
+            <Text style={s.statGridLabel}>{item.label}</Text>
+          </View>
+        ))}
+      </View>
+
       {/* ── Account ── */}
       <Text style={[s.sectionLabel, { marginTop: 20 }]}>ACCOUNT</Text>
       <View style={s.accountCard}>
@@ -341,6 +362,25 @@ const s = StyleSheet.create({
     borderRadius: 6, borderWidth: 1, borderColor: LIME_BORDER,
   },
   goalTxt: { color: LIME, fontSize: 12, fontWeight: "600" },
+
+  // ── Statistics grid ───────────────────────────────────────────────────────
+  statGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 8,
+    marginBottom: 4,
+  },
+  statGridCell: {
+    width: "48%",
+    backgroundColor: CARD,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: BORDER,
+    padding: 16,
+    gap: 6,
+  },
+  statGridVal:   { color: "#fff", fontSize: 22, fontWeight: "800", letterSpacing: -0.5 },
+  statGridLabel: { color: MUTED, fontSize: 11, fontWeight: "600", letterSpacing: 0.3 },
 
   // ── Account ───────────────────────────────────────────────────────────────
   accountCard: {
