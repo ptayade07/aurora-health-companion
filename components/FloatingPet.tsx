@@ -10,7 +10,6 @@ import {
 } from "react-native";
 import * as Speech from "expo-speech";
 import { useApp } from "../context/AppContext";
-import { colors } from "../lib/theme";
 import { BOUNCE_PARAMS, MOVE_INTERVAL } from "../lib/companion";
 import PixelCompanion from "./PixelCompanion";
 
@@ -171,10 +170,10 @@ export default function FloatingPet() {
 
   // ── glow color ────────────────────────────────────────────────────────────
   const glowColor =
-    healthScore >= 80 ? "#A855F7"
-    : healthScore >= 60 ? "#3B82F6"
-    : healthScore >= 40 ? "#F59E0B"
-    : "#EF4444";
+    healthScore >= 80 ? "#C8FF00"
+    : healthScore >= 60 ? "#A3E635"
+    : healthScore >= 40 ? "#FACC15"
+    : "#F87171";
 
   return (
     <Animated.View
@@ -237,26 +236,26 @@ const styles = StyleSheet.create({
     width: 64,
     height: 64,
     borderRadius: 32,
-    backgroundColor: colors.bgCard,
+    backgroundColor: "#101010",
     alignItems: "center",
     justifyContent: "center",
     borderWidth: 2,
     margin: 4,
   },
   bubble: {
-    backgroundColor: "#1A1530",
+    backgroundColor: "#141414",
     borderRadius: 14,
     paddingHorizontal: 12,
     paddingVertical: 8,
     marginBottom: 8,
     maxWidth: 180,
     borderWidth: 1,
-    borderColor: colors.purple,
+    borderColor: "rgba(200,255,0,0.25)",
     alignSelf: "center",
     position: "relative",
   },
   bubbleText: {
-    color: colors.text,
+    color: "#FFFFFF",
     fontSize: 12,
     lineHeight: 17,
     fontWeight: "500",
@@ -268,10 +267,10 @@ const styles = StyleSheet.create({
     marginLeft: -6,
     width: 12,
     height: 12,
-    backgroundColor: "#1A1530",
+    backgroundColor: "#141414",
     borderRightWidth: 1,
     borderBottomWidth: 1,
-    borderColor: colors.purple,
+    borderColor: "rgba(200,255,0,0.25)",
     transform: [{ rotate: "45deg" }],
   },
 });

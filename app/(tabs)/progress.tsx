@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Dimensions } from
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Svg, { Path, Defs, LinearGradient as SvgGradient, Stop, Line, Circle } from "react-native-svg";
 import { MotiView } from "moti";
+import { Ionicons } from "@expo/vector-icons";
 import { useApp } from "../../context/AppContext";
 import { calculateHealthScore } from "../../lib/healthScore";
 import type { SleepEntry } from "../../lib/types";
@@ -611,10 +612,12 @@ export default function ProgressScreen() {
               {(["dead_inside", "sleepy", "fine", "slaying", "unstoppable"] as const).map((m) => {
                 const score = MOOD_SCORE[m];
                 const active = stats.mood === m;
-                const emoji  = { dead_inside: "😵", sleepy: "😴", fine: "😊", slaying: "⚡", unstoppable: "🔥" }[m];
+                const icon: React.ComponentProps<typeof Ionicons>["name"] = (
+                  { dead_inside: "remove-circle-outline", sleepy: "moon-outline", fine: "happy-outline", slaying: "flash-outline", unstoppable: "flame-outline" } as const
+                )[m];
                 return (
                   <View key={m} style={s.moodItem}>
-                    <Text style={[s.moodEmoji, !active && { opacity: 0.3 }]}>{emoji}</Text>
+                    <Ionicons name={icon} size={14} color={active ? LIME : MUTED} style={!active ? { opacity: 0.4 } : undefined} />
                     <View style={[s.moodBar, { height: (score / 100) * 48 }, active && { backgroundColor: LIME }]} />
                   </View>
                 );
@@ -667,6 +670,6 @@ const s = StyleSheet.create({
   // Mood bars
   moodRow:  { flexDirection: "row", alignItems: "flex-end", gap: 10, height: 64 },
   moodItem: { flex: 1, alignItems: "center", gap: 6, justifyContent: "flex-end" },
-  moodEmoji:{ fontSize: 20 },
+  moodIcon: {},
   moodBar:  { width: "100%", borderRadius: 6, backgroundColor: "rgba(255,255,255,0.10)" },
 });

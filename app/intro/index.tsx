@@ -10,6 +10,8 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { MotiView } from "moti";
+import { Ionicons } from "@expo/vector-icons";
+import React from "react";
 import { useApp } from "../../context/AppContext";
 
 const { width } = Dimensions.get("window");
@@ -20,7 +22,7 @@ const LIME = "#C8FF00";
 
 type Slide = {
   num: string;
-  icon: string;
+  icon: React.ComponentProps<typeof Ionicons>["name"];
   title: string;
   subtitle: string;
 };
@@ -28,25 +30,25 @@ type Slide = {
 const SLIDES: Slide[] = [
   {
     num: "01",
-    icon: "✦",
+    icon: "planet-outline",
     title: "Understand\nyourself better\nevery day.",
     subtitle: "Meet Aurora — your slightly unhinged health best friend.",
   },
   {
     num: "02",
-    icon: "💧",
+    icon: "water-outline",
     title: "Track water,\nsleep, habits\n& more.",
     subtitle: "Not boring charts. Actual vibes.",
   },
   {
     num: "03",
-    icon: "🎙️",
+    icon: "mic-outline",
     title: "Talk to Aurora.\nShe actually\nlistens.",
     subtitle: "Voice AI that logs your health and roasts you lovingly.",
   },
   {
     num: "04",
-    icon: "⚡",
+    icon: "trending-up-outline",
     title: "Build routines\nthat actually\nstick.",
     subtitle: "Quests, streaks, and a companion that cares.",
   },
@@ -125,7 +127,7 @@ export default function IntroScreen() {
             transition={{ type: "spring", damping: 13, stiffness: 160, delay: 60 }}
             style={styles.iconWrap}
           >
-            <Text style={styles.icon}>{slide.icon}</Text>
+            <Ionicons name={slide.icon} size={48} color={LIME} />
           </MotiView>
 
           {/* Title */}
@@ -228,9 +230,6 @@ const styles = StyleSheet.create({
   },
   iconWrap: {
     marginBottom: 24,
-  },
-  icon: {
-    fontSize: 48,
   },
   title: {
     color: "#FFFFFF",

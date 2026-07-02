@@ -3,6 +3,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import Svg, { Circle, G } from "react-native-svg";
 import { MotiView } from "moti";
+import { Ionicons } from "@expo/vector-icons";
 import { useApp } from "../../context/AppContext";
 import PixelCompanion from "../../components/PixelCompanion";
 import { COMPANIONS } from "../../lib/companion";
@@ -52,8 +53,12 @@ function companionMessage(
 }
 
 const MOOD_ORDER: Mood[] = ["dead_inside", "sleepy", "fine", "slaying", "unstoppable"];
-const MOOD_EMOJI: Record<Mood, string> = {
-  dead_inside: "😵", sleepy: "😴", fine: "😊", slaying: "⚡", unstoppable: "🔥",
+const MOOD_ICON: Record<Mood, React.ComponentProps<typeof Ionicons>["name"]> = {
+  dead_inside: "remove-circle-outline",
+  sleepy:      "moon-outline",
+  fine:        "happy-outline",
+  slaying:     "flash-outline",
+  unstoppable: "flame-outline",
 };
 const MOOD_LABEL: Record<Mood, string> = {
   dead_inside: "Dead", sleepy: "Sleepy", fine: "Motivated",
@@ -314,7 +319,7 @@ function MoodCard({ mood, onCycle }: { mood: Mood | null; onCycle: () => void })
   return (
     <TouchableOpacity style={[hc.card, mo.card]} onPress={onCycle} activeOpacity={0.82}>
       <Text style={hc.label}>Mood</Text>
-      <Text style={mo.emoji}>{MOOD_EMOJI[current]}</Text>
+      <Ionicons name={MOOD_ICON[current]} size={32} color={LIME} style={mo.icon} />
       <Text style={mo.moodLabel}>{MOOD_LABEL[current]}</Text>
       <Text style={mo.tap}>Tap to change</Text>
     </TouchableOpacity>
@@ -322,7 +327,7 @@ function MoodCard({ mood, onCycle }: { mood: Mood | null; onCycle: () => void })
 }
 const mo = StyleSheet.create({
   card:      { justifyContent: "flex-start", gap: 4 },
-  emoji:     { fontSize: 36, marginTop: 8 },
+  icon:      { marginTop: 8 },
   moodLabel: { color: WHITE, fontSize: 14, fontWeight: "700", marginTop: 2 },
   tap:       { color: MUTED, fontSize: 10, fontWeight: "500", marginTop: 4 },
 });
@@ -477,7 +482,7 @@ export default function TodayScreen() {
             label="Habits"
             value={stats.habitsCompleted}
             unit={` / ${stats.habitsTotal}`}
-            sub={stats.habitsCompleted === stats.habitsTotal && stats.habitsTotal > 0 ? "All done 🎉" : "Done today"}
+            sub={stats.habitsCompleted === stats.habitsTotal && stats.habitsTotal > 0 ? "All done!" : "Done today"}
             onPress={() => router.push("/(tabs)/quests")}
           />
           <MoodCard mood={stats.mood} onCycle={cycleMood} />

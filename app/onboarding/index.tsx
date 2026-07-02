@@ -8,14 +8,25 @@ import {
   ScrollView,
   ActivityIndicator,
 } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useApp } from "../../context/AppContext";
 import { PERSONALITY_OPTIONS } from "../../lib/personality";
 import type { PersonalityMode } from "../../lib/personality";
 import { COMPANIONS } from "../../lib/companion";
 import type { CompanionType } from "../../lib/companion";
-import { colors, spacing, radius } from "../../lib/theme";
 import PixelCompanion from "../../components/PixelCompanion";
+
+// ── Palette ───────────────────────────────────────────────────────────────────
+const BG          = "#070707";
+const CARD        = "#101010";
+const BORDER      = "rgba(255,255,255,0.08)";
+const LIME        = "#C8FF00";
+const LIME_DIM    = "rgba(200,255,0,0.10)";
+const LIME_BORDER = "rgba(200,255,0,0.25)";
+const WHITE       = "#FFFFFF";
+const MUTED       = "rgba(255,255,255,0.38)";
+const SOFT        = "rgba(255,255,255,0.65)";
 
 const GOALS = [
   "Improve Hydration",
@@ -56,19 +67,21 @@ export default function OnboardingScreen() {
   };
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      <Text style={styles.progress}>Step {step + 1} of {TOTAL_STEPS}</Text>
-      <View style={styles.progressBar}>
-        <View style={[styles.progressFill, { width: `${((step + 1) / TOTAL_STEPS) * 100}%` }]} />
+    <ScrollView style={s.container} contentContainerStyle={s.content}>
+      {/* Progress */}
+      <Text style={s.progress}>Step {step + 1} of {TOTAL_STEPS}</Text>
+      <View style={s.progressBar}>
+        <View style={[s.progressFill, { width: `${((step + 1) / TOTAL_STEPS) * 100}%` }]} />
       </View>
 
+      {/* Step 0 — Name */}
       {step === 0 && (
         <>
-          <Text style={styles.title}>What should Aurora call you?</Text>
+          <Text style={s.title}>What should Aurora{"\n"}call you?</Text>
           <TextInput
-            style={styles.input}
+            style={s.input}
             placeholder="Your name"
-            placeholderTextColor={colors.textMuted}
+            placeholderTextColor={MUTED}
             value={name}
             onChangeText={setName}
             autoFocus
@@ -76,27 +89,28 @@ export default function OnboardingScreen() {
         </>
       )}
 
+      {/* Step 1 — Goals + Water */}
       {step === 1 && (
         <>
-          <Text style={styles.title}>Pick your goals</Text>
-          <View style={styles.chips}>
+          <Text style={s.title}>Pick your goals</Text>
+          <View style={s.chips}>
             {GOALS.map((g) => (
               <TouchableOpacity
                 key={g}
-                style={[styles.chip, goals.includes(g) && styles.chipActive]}
+                style={[s.chip, goals.includes(g) && s.chipActive]}
                 onPress={() => toggleGoal(g)}
               >
-                <Text style={[styles.chipText, goals.includes(g) && styles.chipTextActive]}>
+                <Text style={[s.chipText, goals.includes(g) && s.chipTextActive]}>
                   {g}
                 </Text>
               </TouchableOpacity>
             ))}
           </View>
-          <Text style={[styles.title, { marginTop: spacing.lg }]}>Daily water goal (ml)</Text>
+          <Text style={[s.title, { marginTop: 24, fontSize: 18 }]}>Daily water goal (ml)</Text>
           <TextInput
-            style={styles.input}
+            style={s.input}
             placeholder="2500"
-            placeholderTextColor={colors.textMuted}
+            placeholderTextColor={MUTED}
             value={waterGoal}
             onChangeText={setWaterGoal}
             keyboardType="numeric"
@@ -104,32 +118,29 @@ export default function OnboardingScreen() {
         </>
       )}
 
+      {/* Step 2 — Companion */}
       {step === 2 && (
         <>
-          <Text style={styles.title}>Choose your companion</Text>
-          <Text style={styles.subtitle}>
-            They'll follow you everywhere and reflect your progress.
-          </Text>
-          <View style={styles.companionGrid}>
+          <Text style={s.title}>Choose your{"\n"}companion</Text>
+          <Text style={s.subtitle}>They'll follow you everywhere and reflect your progress.</Text>
+          <View style={s.companionGrid}>
             {COMPANIONS.map((c) => {
               const selected = companion === c.id;
               return (
                 <TouchableOpacity
                   key={c.id}
-                  style={[styles.companionCard, selected && styles.companionCardActive]}
+                  style={[s.companionCard, selected && s.companionCardActive]}
                   onPress={() => setCompanion(c.id)}
                   activeOpacity={0.75}
                 >
-                  <View style={[styles.companionPreview, selected && { borderColor: c.accentColor }]}>
+                  <View style={[s.companionPreview, selected && { borderColor: LIME }]}>
                     <PixelCompanion companionId={c.id} mood="happy" size={52} />
                   </View>
-                  <Text style={[styles.companionName, selected && { color: c.accentColor }]}>
+                  <Text style={[s.companionName, selected && { color: LIME }]}>
                     {c.name}
                   </Text>
-                  <Text style={styles.companionDesc}>{c.description}</Text>
-                  {selected && (
-                    <View style={[styles.selectedDot, { backgroundColor: c.accentColor }]} />
-                  )}
+                  <Text style={s.companionDesc}>{c.description}</Text>
+                  {selected && <View style={s.selectedDot} />}
                 </TouchableOpacity>
               );
             })}
@@ -137,29 +148,30 @@ export default function OnboardingScreen() {
         </>
       )}
 
+      {/* Step 3 — Personality */}
       {step === 3 && (
         <>
-          <Text style={styles.title}>Choose Aurora's vibe</Text>
-          <Text style={styles.subtitle}>This controls how she talks to you.</Text>
+          <Text style={s.title}>Choose Aurora's{"\n"}vibe</Text>
+          <Text style={s.subtitle}>This controls how she talks to you.</Text>
           {PERSONALITY_OPTIONS.map((p) => (
             <TouchableOpacity
               key={p.id}
-              style={[styles.personalityCard, personality === p.id && styles.personalityActive]}
+              style={[s.personalityCard, personality === p.id && s.personalityActive]}
               onPress={() => setPersonality(p.id)}
             >
-              <Text style={styles.personalityEmoji}>{p.emoji}</Text>
               <View style={{ flex: 1 }}>
-                <Text style={styles.personalityLabel}>{p.label}</Text>
-                <Text style={styles.personalityDesc}>{p.description}</Text>
+                <Text style={s.personalityLabel}>{p.label}</Text>
+                <Text style={s.personalityDesc}>{p.description}</Text>
               </View>
-              {personality === p.id && <Text style={styles.check}>✓</Text>}
+              {personality === p.id && <Ionicons name="checkmark" size={20} color={LIME} />}
             </TouchableOpacity>
           ))}
         </>
       )}
 
+      {/* CTA */}
       <TouchableOpacity
-        style={[styles.button, saving && styles.buttonDisabled]}
+        style={[s.button, saving && s.buttonDisabled]}
         disabled={saving}
         onPress={() => {
           if (step < TOTAL_STEPS - 1) setStep(step + 1);
@@ -167,10 +179,10 @@ export default function OnboardingScreen() {
         }}
       >
         {saving ? (
-          <ActivityIndicator color={colors.text} />
+          <ActivityIndicator color="#000" />
         ) : (
-          <Text style={styles.buttonText}>
-            {step < TOTAL_STEPS - 1 ? "Continue" : "Let's Go ✨"}
+          <Text style={s.buttonText}>
+            {step < TOTAL_STEPS - 1 ? "Continue" : "Let's Go"}
           </Text>
         )}
       </TouchableOpacity>
@@ -178,80 +190,78 @@ export default function OnboardingScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.bg },
-  content:   { padding: spacing.xl, paddingTop: 60, paddingBottom: 40 },
-  progress:  { color: colors.textMuted, marginBottom: spacing.sm, fontSize: 13 },
+const s = StyleSheet.create({
+  container: { flex: 1, backgroundColor: BG },
+  content:   { padding: 32, paddingTop: 60, paddingBottom: 48 },
+
+  progress: { color: MUTED, fontSize: 12, fontWeight: "600", letterSpacing: 0.5, marginBottom: 8 },
   progressBar: {
-    height: 4,
-    backgroundColor: colors.bgElevated,
+    height: 3,
+    backgroundColor: BORDER,
     borderRadius: 2,
-    marginBottom: spacing.xl,
+    marginBottom: 36,
     overflow: "hidden",
   },
-  progressFill: { height: "100%", backgroundColor: colors.purple, borderRadius: 2 },
-  title:    { color: colors.text, fontSize: 24, fontWeight: "700", marginBottom: spacing.md },
-  subtitle: { color: colors.textMuted, marginBottom: spacing.lg },
+  progressFill: { height: "100%", backgroundColor: LIME, borderRadius: 2 },
+
+  title:    { color: WHITE, fontSize: 32, fontWeight: "800", letterSpacing: -1.2, lineHeight: 38, marginBottom: 16 },
+  subtitle: { color: MUTED, fontSize: 14, lineHeight: 20, marginBottom: 20 },
+
   input: {
-    backgroundColor: colors.bgCard,
-    borderRadius: radius.md,
-    padding: spacing.md,
-    color: colors.text,
+    backgroundColor: CARD,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: BORDER,
+    paddingHorizontal: 20,
+    paddingVertical: 18,
+    color: WHITE,
     fontSize: 16,
   },
-  chips: { flexDirection: "row", flexWrap: "wrap", gap: spacing.sm },
+
+  chips: { flexDirection: "row", flexWrap: "wrap", gap: 8, marginBottom: 8 },
   chip: {
-    backgroundColor: colors.bgCard,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    borderRadius: radius.full,
+    backgroundColor: CARD,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 999,
     borderWidth: 1,
-    borderColor: colors.bgElevated,
+    borderColor: BORDER,
   },
-  chipActive:     { borderColor: colors.purple, backgroundColor: colors.purpleDark },
-  chipText:       { color: colors.textMuted, fontSize: 14 },
-  chipTextActive: { color: colors.text },
+  chipActive:     { borderColor: LIME, backgroundColor: LIME_DIM },
+  chipText:       { color: MUTED, fontSize: 13, fontWeight: "500" },
+  chipTextActive: { color: LIME, fontWeight: "600" },
 
   companionGrid: {
     flexDirection: "row",
     flexWrap: "wrap",
-    gap: spacing.sm,
+    gap: 10,
     justifyContent: "space-between",
   },
   companionCard: {
     width: "30%",
-    backgroundColor: colors.bgCard,
-    borderRadius: radius.lg,
-    padding: spacing.sm,
+    backgroundColor: CARD,
+    borderRadius: 18,
+    padding: 10,
     alignItems: "center",
     borderWidth: 1,
-    borderColor: "transparent",
-    marginBottom: spacing.sm,
+    borderColor: BORDER,
+    marginBottom: 10,
     position: "relative",
   },
-  companionCardActive: { borderColor: colors.purple },
+  companionCardActive: { borderColor: LIME, backgroundColor: LIME_DIM },
   companionPreview: {
     width: 64,
     height: 64,
-    borderRadius: radius.md,
-    backgroundColor: colors.bgElevated,
+    borderRadius: 14,
+    backgroundColor: "rgba(255,255,255,0.05)",
     alignItems: "center",
     justifyContent: "center",
     borderWidth: 2,
     borderColor: "transparent",
-    marginBottom: spacing.xs,
+    marginBottom: 6,
   },
-  companionName: {
-    color: colors.text,
-    fontWeight: "700",
-    fontSize: 13,
-    marginBottom: 2,
-  },
-  companionDesc: {
-    color: colors.textMuted,
-    fontSize: 10,
-    textAlign: "center",
-  },
+  companionName: { color: SOFT, fontWeight: "700", fontSize: 12, marginBottom: 2 },
+  companionDesc: { color: MUTED, fontSize: 9, textAlign: "center" },
   selectedDot: {
     position: "absolute",
     top: 6,
@@ -259,34 +269,31 @@ const styles = StyleSheet.create({
     width: 8,
     height: 8,
     borderRadius: 4,
+    backgroundColor: LIME,
   },
 
   personalityCard: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: colors.bgCard,
-    padding: spacing.md,
-    borderRadius: radius.lg,
-    marginBottom: spacing.sm,
-    gap: spacing.md,
+    backgroundColor: CARD,
+    paddingVertical: 18,
+    paddingHorizontal: 16,
+    borderRadius: 18,
+    marginBottom: 10,
     borderWidth: 1,
-    borderColor: "transparent",
+    borderColor: BORDER,
   },
-  personalityActive:  { borderColor: colors.purple },
-  personalityEmoji:   { fontSize: 28 },
-  personalityLabel:   { color: colors.text, fontWeight: "700", fontSize: 16 },
-  personalityDesc:    { color: colors.textMuted, fontSize: 13, marginTop: 2 },
-  check: { color: colors.purple, fontSize: 20, fontWeight: "800" },
+  personalityActive: { borderColor: LIME_BORDER, backgroundColor: LIME_DIM },
+  personalityLabel:  { color: WHITE, fontWeight: "700", fontSize: 15 },
+  personalityDesc:   { color: MUTED, fontSize: 13, marginTop: 2 },
 
   button: {
-    backgroundColor: colors.purple,
-    borderRadius: radius.full,
-    padding: spacing.md,
+    backgroundColor: LIME,
+    borderRadius: 999,
+    paddingVertical: 18,
     alignItems: "center",
-    marginTop: spacing.xl,
-    height: 52,
-    justifyContent: "center",
+    marginTop: 32,
   },
   buttonDisabled: { opacity: 0.6 },
-  buttonText: { color: colors.text, fontWeight: "700", fontSize: 16 },
+  buttonText: { color: "#000", fontWeight: "800", fontSize: 16 },
 });

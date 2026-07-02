@@ -49,10 +49,14 @@ const EVOLUTIONS: Record<string, { label: string; minLevel: number }[]> = {
 };
 
 // ── Unlockables ───────────────────────────────────────────────────────────────
-const UNLOCKABLES = [
+const UNLOCKABLES: {
+  category: string;
+  icon: React.ComponentProps<typeof Ionicons>["name"];
+  items: { name: string; unlockLevel: number }[];
+}[] = [
   {
     category: "Hats",
-    icon: "🎩",
+    icon: "ribbon-outline",
     items: [
       { name: "Cap",        unlockLevel: 2  },
       { name: "Wizard Hat", unlockLevel: 6  },
@@ -61,7 +65,7 @@ const UNLOCKABLES = [
   },
   {
     category: "Glasses",
-    icon: "🕶️",
+    icon: "glasses-outline",
     items: [
       { name: "Shades",      unlockLevel: 5 },
       { name: "Cyber Visor", unlockLevel: 9 },
@@ -69,7 +73,7 @@ const UNLOCKABLES = [
   },
   {
     category: "Backgrounds",
-    icon: "🌌",
+    icon: "color-palette-outline",
     items: [
       { name: "Forest",    unlockLevel: 3  },
       { name: "Neon City", unlockLevel: 7  },
@@ -78,7 +82,7 @@ const UNLOCKABLES = [
   },
   {
     category: "Effects",
-    icon: "✨",
+    icon: "flash-outline",
     items: [
       { name: "Sparkles",  unlockLevel: 4  },
       { name: "Lightning", unlockLevel: 8  },
@@ -191,7 +195,7 @@ export default function CompanionScreen() {
         {/* Mood pill */}
         <View style={styles.moodPill}>
           <Text style={styles.moodText}>
-            {companion.emoji} {MOOD_LABEL[mood] ?? mood}
+            {MOOD_LABEL[mood] ?? mood}
           </Text>
         </View>
 
@@ -295,7 +299,7 @@ export default function CompanionScreen() {
           style={styles.unlockCard}
         >
           <View style={styles.unlockHeader}>
-            <Text style={styles.unlockCatIcon}>{cat.icon}</Text>
+            <Ionicons name={cat.icon} size={16} color={SOFT} />
             <Text style={styles.unlockCatName}>{cat.category}</Text>
           </View>
           <View style={styles.unlockItems}>
@@ -503,7 +507,6 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   unlockHeader:  { flexDirection: "row", alignItems: "center", gap: 8 },
-  unlockCatIcon: { fontSize: 17 },
   unlockCatName: { color: "#fff", fontSize: 13, fontWeight: "700" },
   unlockItems:   { flexDirection: "row", flexWrap: "wrap", gap: 8 },
   unlockItem: {

@@ -4,6 +4,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 import Svg, { Circle, G } from "react-native-svg";
 import { MotiView } from "moti";
+import { Ionicons } from "@expo/vector-icons";
 import { useApp } from "../../context/AppContext";
 
 // ── Palette ────────────────────────────────────────────────────────────────────
@@ -97,7 +98,7 @@ function History({ waterMl, goal }: { waterMl: number; goal: number }) {
               <Text style={[hist.label, hit && hist.labelHit]}>{m.label}</Text>
               <Text style={hist.ml}>{m.ml} ml</Text>
             </View>
-            {hit && <Text style={hist.check}>✓</Text>}
+            {hit && <Ionicons name="checkmark" size={14} color={LIME} />}
           </View>
         );
       })}
@@ -116,7 +117,6 @@ const hist = StyleSheet.create({
   label:    { color: MUTED, fontSize: 13, fontWeight: "600" },
   labelHit: { color: "#fff" },
   ml:       { color: MUTED, fontSize: 11, fontWeight: "500" },
-  check:    { color: LIME, fontSize: 14, fontWeight: "800" },
 });
 
 // ── Screen ────────────────────────────────────────────────────────────────────

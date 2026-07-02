@@ -315,7 +315,7 @@ export default function NutritionScreen() {
                   onPress={() => removeNutrition(e.id)}
                   hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
                 >
-                  <Text style={s.removeBtn}>✕</Text>
+                  <Ionicons name="close" size={16} color={MUTED} />
                 </TouchableOpacity>
               </View>
             ))}
@@ -424,7 +424,6 @@ const s = StyleSheet.create({
     marginBottom: 6, borderWidth: 1, borderColor: BORDER,
   },
   entryDesc: { flex: 1, color: "#fff", fontSize: 13 },
-  removeBtn: { color: MUTED, fontSize: 14, paddingLeft: 12 },
 
   // Analyze Diet button
   analysisBtn: {

@@ -305,7 +305,7 @@ export default function AuroraScreen() {
     const a = res.action;
     if (a.type === "add_water"    && a.ml)      addWater(a.ml);
     if (a.type === "log_sleep"    && a.hours)    logSleep(a.hours);
-    if (a.type === "create_habit" && a.name)     addHabit(a.name, a.icon ?? "⭐");
+    if (a.type === "create_habit" && a.name)     addHabit(a.name, a.icon ?? "");
     if (a.type === "log_meal"     && a.mealType) addNutrition(a.mealType as NutritionEntry["mealType"], a.description);
     if (a.type === "set_mood"     && a.mood)     setMood(a.mood);
   };

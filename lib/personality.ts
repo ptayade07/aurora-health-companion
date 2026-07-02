@@ -3,25 +3,21 @@ export type PersonalityMode = "supportive" | "chaotic" | "brutally_honest";
 export const PERSONALITY_OPTIONS: {
   id: PersonalityMode;
   label: string;
-  emoji: string;
   description: string;
 }[] = [
   {
     id: "supportive",
     label: "Supportive",
-    emoji: "☁️",
     description: "Warm, encouraging, gentle nudges",
   },
   {
     id: "chaotic",
     label: "Chaotic",
-    emoji: "🌪️",
     description: "Funny best friend energy, meme-friendly",
   },
   {
     id: "brutally_honest",
     label: "Brutally Honest",
-    emoji: "💀",
     description: "No filter. You asked for it.",
   },
 ];

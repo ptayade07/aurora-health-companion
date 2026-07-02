@@ -32,9 +32,9 @@ function userDataKey(uid: string) { return `@aurora_data_${uid}`; }
 function userCmpKey(uid: string | null) { return `@aurora_cmp_${uid ?? "device"}`; }
 
 const DEFAULT_HABITS: Habit[] = [
-  { id: "1", name: "Meditate", icon: "🧘", completedToday: false, streak: 0 },
-  { id: "2", name: "Walk", icon: "🚶", completedToday: false, streak: 0 },
-  { id: "3", name: "Read", icon: "📖", completedToday: false, streak: 0 },
+  { id: "1", name: "Meditate", icon: "", completedToday: false, streak: 0 },
+  { id: "2", name: "Walk", icon: "", completedToday: false, streak: 0 },
+  { id: "3", name: "Read", icon: "", completedToday: false, streak: 0 },
 ];
 
 const DEFAULT_PROFILE: UserProfile = {
@@ -470,7 +470,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         return next;
       });
     },
-    addHabit: (name, icon = "⭐") => {
+    addHabit: (name, icon = "") => {
       setHabits((prev) => {
         const next = [
           ...prev,

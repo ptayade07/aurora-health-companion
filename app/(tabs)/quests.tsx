@@ -92,7 +92,7 @@ export default function HabitsScreen() {
       {/* ── Habit list ── */}
       {total === 0 ? (
         <View style={s.emptyCard}>
-          <Text style={s.emptyIcon}>✦</Text>
+          <Ionicons name="add-circle-outline" size={32} color={MUTED} />
           <Text style={s.emptyTitle}>No habits yet</Text>
           <Text style={s.emptySub}>Add a habit below to start building your daily routine.</Text>
         </View>
@@ -212,7 +212,7 @@ const s = StyleSheet.create({
     alignItems: "center", gap: 10,
     borderWidth: 1, borderColor: BORDER, marginBottom: 24,
   },
-  emptyIcon:  { fontSize: 28, color: MUTED },
+  emptyIcon:  {},
   emptyTitle: { color: "#fff", fontSize: 17, fontWeight: "700" },
   emptySub:   { color: MUTED, fontSize: 13, textAlign: "center", lineHeight: 20 },
 

@@ -1,13 +1,19 @@
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
-import { colors, radius, spacing } from "../lib/theme";
+import { Ionicons } from "@expo/vector-icons";
 import type { Mood } from "../lib/types";
+import React from "react";
 
-const MOODS: { id: Mood; emoji: string; label: string }[] = [
-  { id: "dead_inside", emoji: "😭", label: "Dead Inside" },
-  { id: "sleepy", emoji: "😴", label: "Sleepy" },
-  { id: "fine", emoji: "🙂", label: "Fine" },
-  { id: "slaying", emoji: "😎", label: "Slaying" },
-  { id: "unstoppable", emoji: "🔥", label: "Unstoppable" },
+const CARD  = "#101010";
+const LIME  = "#C8FF00";
+const MUTED = "rgba(255,255,255,0.38)";
+const BORDER = "rgba(255,255,255,0.08)";
+
+const MOODS: { id: Mood; icon: React.ComponentProps<typeof Ionicons>["name"]; label: string }[] = [
+  { id: "dead_inside", icon: "remove-circle-outline", label: "Dead Inside" },
+  { id: "sleepy",      icon: "moon-outline",          label: "Sleepy" },
+  { id: "fine",        icon: "happy-outline",          label: "Fine" },
+  { id: "slaying",     icon: "flash-outline",          label: "Slaying" },
+  { id: "unstoppable", icon: "flame-outline",          label: "Unstoppable" },
 ];
 
 type Props = {
@@ -26,7 +32,11 @@ export default function MoodCheckIn({ selected, onSelect }: Props) {
             style={[styles.chip, selected === m.id && styles.chipActive]}
             onPress={() => onSelect(m.id)}
           >
-            <Text style={styles.emoji}>{m.emoji}</Text>
+            <Ionicons
+              name={m.icon}
+              size={22}
+              color={selected === m.id ? LIME : MUTED}
+            />
             <Text style={styles.label}>{m.label}</Text>
           </TouchableOpacity>
         ))}
@@ -37,41 +47,43 @@ export default function MoodCheckIn({ selected, onSelect }: Props) {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: colors.bgCard,
-    borderRadius: radius.lg,
-    padding: spacing.lg,
-    marginBottom: spacing.md,
+    backgroundColor: CARD,
+    borderRadius: 20,
+    padding: 20,
+    marginBottom: 14,
+    borderWidth: 1,
+    borderColor: BORDER,
   },
   title: {
-    color: colors.text,
-    fontSize: 16,
-    fontWeight: "600",
-    marginBottom: spacing.md,
+    color: "#fff",
+    fontSize: 15,
+    fontWeight: "700",
+    marginBottom: 14,
   },
   row: {
     flexDirection: "row",
     flexWrap: "wrap",
-    gap: spacing.sm,
+    gap: 8,
   },
   chip: {
     alignItems: "center",
-    backgroundColor: colors.bgElevated,
-    borderRadius: radius.md,
-    paddingVertical: spacing.sm,
-    paddingHorizontal: spacing.sm,
+    backgroundColor: "rgba(255,255,255,0.05)",
+    borderRadius: 14,
+    paddingVertical: 10,
+    paddingHorizontal: 10,
     minWidth: 64,
+    borderWidth: 1,
+    borderColor: BORDER,
   },
   chipActive: {
-    borderWidth: 2,
-    borderColor: colors.purple,
-  },
-  emoji: {
-    fontSize: 22,
+    borderWidth: 1,
+    borderColor: "rgba(200,255,0,0.40)",
+    backgroundColor: "rgba(200,255,0,0.08)",
   },
   label: {
-    color: colors.textMuted,
+    color: MUTED,
     fontSize: 10,
-    marginTop: 2,
+    marginTop: 4,
     textAlign: "center",
   },
 });

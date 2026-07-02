@@ -68,13 +68,13 @@ export default function SplashScreen() {
 
       {/* Center */}
       <View style={styles.center}>
-        {/* Lime sparkle */}
+        {/* Lime diamond */}
         <MotiView
           from={{ opacity: 0, scale: 0.2, rotate: "-60deg" }}
           animate={{ opacity: 1, scale: 1, rotate: "0deg" }}
           transition={{ type: "spring", damping: 11, delay: 200 }}
         >
-          <Text style={styles.sparkle}>✦</Text>
+          <View style={styles.sparkle} />
         </MotiView>
 
         {/* Wordmark */}
@@ -147,9 +147,11 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   sparkle: {
-    color: LIME,
-    fontSize: 24,
-    marginBottom: 12,
+    width: 10,
+    height: 10,
+    backgroundColor: LIME,
+    transform: [{ rotate: "45deg" }],
+    marginBottom: 16,
   },
   wordmark: {
     color: "#FFFFFF",
